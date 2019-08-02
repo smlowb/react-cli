@@ -4,13 +4,14 @@ const htmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const extractTextWebpackPlugin = require('extract-text-webpack-plugin');
 const progressBarPlugin = require('progress-bar-webpack-plugin');
+const utils = require('./utils');
 
 module.exports = {
     entry:  path.resolve(__dirname, '../src/index.js'),
-    mode: process.env.NODE_ENV,
     output: {
-        filename: '[name].[hash].js',
-        path: path.resolve(__dirname, '../dist')
+        filename: 'js/[name].[chunkhash].js',
+        chunkFilename: 'js/[id].[chunkhash].js',
+        path: path.resolve(__dirname, '../dist'),
     },
     devServer: {
         ...config.devServer
@@ -18,41 +19,9 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.jsx?$/,
                 exclude: /node_modules/,
                 use: [{ loader: 'babel-loader' }],
-            },
-            {
-                test: /\.css$/,
-                loader: extractTextWebpackPlugin.extract({
-                  fallback: 'style-loader',
-                  use: [{
-                    loader: 'css-loader',
-                    options: {
-                      modules: true,
-                    }
-                  }],
-                }),
-                // use: ['style-loader', 'css-loader?modules'],
-                // exclude: /node_modules/
-            },
-            {
-                test: /\.s(c|a)ss$/,
-                // loader: 'sass-loader',
-                loader: extractTextWebpackPlugin.extract({
-                  fallback: 'style-loader',
-                  use: [
-                    {
-                      loader: 'css-loader',
-                      options: {
-                        modules: true,
-                        sourceMap: true,
-                        importLoaders: 2
-                      },
-                    },
-                    'sass-loader'
-                  ]
-                }),
             },
             {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -81,8 +50,7 @@ module.exports = {
         new htmlWebpackPlugin({
             template: path.resolve(__dirname, '../public/index.html'),
         }),
-        new CleanWebpackPlugin(),
-        new extractTextWebpackPlugin('[name].[hash].css'),
+   
         new progressBarPlugin({
           complete: '🐷',
         })
